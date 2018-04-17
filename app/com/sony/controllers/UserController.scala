@@ -5,9 +5,9 @@ import javax.inject.{Inject, Singleton}
 import akka.actor.Props
 import akka.pattern.ask
 import akka.util.Timeout
-import com.sony.models.User
+import com.sony.models.{Role, User, UserGroup}
 import com.sony.repository.{ClientPermission, UserPermission, UserPermissionWithCache}
-import com.sony.services.UserActor
+import com.sony.services.{RoleCommand, UserActor, UserGroupCommand}
 import com.sony.utils._
 import com.sony.utils.JsonImplicits._
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -73,6 +73,22 @@ class UserController @Inject()(creator: ActorCreator, cc: ControllerComponents) 
     val actualResult = result.flatMap(identity)
     actualResult.map { act =>
       Ok(toJson(act.head))
+    }
+  }
+
+  def getAllRoles(id: String) = Action.async { request =>
+    val result = ask(userActor, RoleCommand(BSONObjectID.parse(id).get)).mapTo[Future[List[Role]]]
+    val actualResult = result.flatMap(identity)
+    actualResult.map { act =>
+      Ok(toJson(act))
+    }
+  }
+
+  def getAllUserGroups(id: String) = Action.async { request =>
+    val result = ask(userActor, UserGroupCommand(id)).mapTo[Future[List[UserGroup]]]
+    val actualResult = result.flatMap(identity)
+    actualResult.map { act =>
+      Ok(toJson(act))
     }
   }
 

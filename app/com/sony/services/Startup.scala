@@ -31,7 +31,7 @@ class StartupImpl @Inject()(appLifecycle: ApplicationLifecycle) extends Startup 
       rlMap = roles.groupBy(x => x._id)
       _ = roleMap.put("Roles", rlMap)
       userGroups <- UserGroupRepositoryImpl.findAll()
-      lastMap = userGroups.flatMap(grp => grp.users.map(user => user -> grp)).toMap.groupBy(_._1)
+      lastMap = userGroups.flatMap(grp => grp.users.map(user => user.id -> grp)).toMap.groupBy(_._1)
       _ = UserGroupMap.put("UserGroups", lastMap)
       _ = println("Done")
     } yield ""

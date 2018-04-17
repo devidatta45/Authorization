@@ -2,6 +2,8 @@ package com.sony.repository
 
 import com.sony.models.{User, UserGroup}
 import com.sony.services.DataUtils
+import com.sony.utils.ClientColumnConstants.NAME
+import com.sony.utils.UserGroupColumnConstants.{ROLES, USERS}
 import com.sony.utils._
 import reactivemongo.bson.{BSONDocument, BSONObjectID}
 
@@ -18,8 +20,12 @@ class UserGroupRepository extends BaseRepository[UserGroup] {
   def getUserGroups(userId: String): Future[List[String]] = {
     for {
       userGroups <- filterQuery(BSONDocument(UserGroupColumnConstants.USERS -> BSONObjectID.parse(userId).get))
-      groupRoles = userGroups.flatMap(_.roles)
+      groupRoles = userGroups.flatMap(x => x.roles.map(_.id))
     } yield groupRoles
+  }
+
+  def getUserGroupsByUser(userId: String): Future[List[UserGroup]] = {
+    filterQuery(BSONDocument(UserGroupColumnConstants.USERS -> BSONObjectID.parse(userId).get))
   }
 
   def getUserGroupsWithCache(userId: String): List[String] = {
@@ -27,7 +33,7 @@ class UserGroupRepository extends BaseRepository[UserGroup] {
     if (userGroups.isDefined) {
       val grps = userGroups.get.get(userId)
       if (grps.isDefined) {
-        grps.get.flatMap(x => x._2.roles).toList
+        grps.get.flatMap(x => x._2.roles.map(_.id)).toList
       } else Nil
     }
     else {
@@ -39,8 +45,54 @@ class UserGroupRepository extends BaseRepository[UserGroup] {
     for {
       userGroup <- findById(BSONObjectID.parse(usergroupId).get)
       users <- UserRepositoryImpl.filterQuery(BSONDocument(BaseColumnConstants.ID ->
-        BSONDocument(OperatorConstants.IN -> userGroup.head.users.map(userId => BSONObjectID.parse(userId).get))))
+        BSONDocument(OperatorConstants.IN -> userGroup.head.users.map(userId => BSONObjectID.parse(userId.id).get))))
     } yield users
+  }
+
+  def updateUserGroup(cmd: UserUpdateCommand[UserGroup]): Future[List[UserGroup]] = {
+    val roles = cmd.user.roles.map(role => BSONDocument("id" ->
+      BSONObjectID.parse(role.id).get, NAME -> role.name))
+    val users = cmd.user.users.map(user => BSONDocument("id" ->
+      BSONObjectID.parse(user.id).get, NAME -> user.name))
+    val document = BSONDocument(
+      "$set" -> BSONDocument(
+        NAME -> cmd.user.name,
+        ROLES -> roles,
+        USERS -> users))
+    UserGroupRepositoryImpl.updateById(cmd.id, document)
+  }
+
+  def deleteRolesFromUserGroup(roleId: BSONObjectID): Future[List[Future[List[UserGroup]]]] = {
+    for {
+      userGroups <- filterQuery(BSONDocument("ROLES.id" -> roleId))
+      res = userGroups.map(ugrs => {
+        val roles = ugrs.roles.filterNot(rol => rol.id == roleId.stringify)
+        val newUserGroup = ugrs.copy(roles = roles)
+        updateUserGroup(UserUpdateCommand[UserGroup](BSONObjectID.parse(newUserGroup._id).get, newUserGroup))
+      })
+    } yield res
+  }
+
+  def deleteMultipleRolesFromUserGroup(roleIds: List[BSONObjectID]): Future[List[Future[List[UserGroup]]]] = {
+    for {
+      userGroups <- filterQuery(BSONDocument("ROLES.id" -> BSONDocument("$in" -> roleIds)))
+      res = userGroups.map(ugrs => {
+        val roles = ugrs.roles.filterNot(rol => roleIds.map(_.stringify) contains rol.id)
+        val newUserGroup = ugrs.copy(roles = roles)
+        updateUserGroup(UserUpdateCommand[UserGroup](BSONObjectID.parse(newUserGroup._id).get, newUserGroup))
+      })
+    } yield res
+  }
+
+  def deleteUsersFromUserGroup(userId: BSONObjectID): Future[List[Future[List[UserGroup]]]] = {
+    for {
+      userGroups <- filterQuery(BSONDocument("USERS.id" -> userId))
+      res = userGroups.map(ugrs => {
+        val users = ugrs.users.filterNot(user => user.id == userId.stringify)
+        val newUserGroup = ugrs.copy(users = users)
+        updateUserGroup(UserUpdateCommand[UserGroup](BSONObjectID.parse(newUserGroup._id).get, newUserGroup))
+      })
+    } yield res
   }
 
 }

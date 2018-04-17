@@ -60,9 +60,9 @@ trait BaseRepository[T <: BaseEntity] {
     } yield document
   }
 
-  def bulkSave(t: List[T])(implicit writer: BSONDocumentWriter[T],reader: BSONDocumentReader[T]): Future[Boolean] = {
+  def bulkSave(t: List[T])(implicit writer: BSONDocumentWriter[T], reader: BSONDocumentReader[T]): Future[Boolean] = {
     for {
-      document <- collection.flatMap(x=>x.insert[T](ordered = false).many(t).map(x => x.ok))
+      document <- collection.flatMap(x => x.insert[T](ordered = false).many(t).map(x => x.ok))
     } yield document
   }
 
@@ -85,11 +85,27 @@ trait BaseRepository[T <: BaseEntity] {
     } yield updatedUser
   }
 
+  def updateMultiple(id: BSONObjectID, document: BSONDocument)(implicit writer: BSONDocumentWriter[T], reader: BSONDocumentReader[T]): Future[List[T]] = {
+    val selector = BSONDocument(ID -> id, ISREMOVED -> false)
+    for {
+      updateDocument <- collection.flatMap(_.update(selector, document, multi = true).map(_.n))
+      updatedUser <- findById(id)
+    } yield updatedUser
+  }
+
   def deleteById(id: BSONObjectID)(implicit writer: BSONDocumentWriter[T]): Future[Int] = {
     val selector = BSONDocument(ID -> id, ISREMOVED -> false)
     val modifier = BSONDocument("$set" -> BSONDocument(ISREMOVED -> true))
     for {
       document <- collection.flatMap(_.update(selector, modifier).map(_.n))
+    } yield document
+  }
+
+  def deleteByIds(ids: List[BSONObjectID])(implicit writer: BSONDocumentWriter[T]): Future[Int] = {
+    val selector = BSONDocument(ID -> BSONDocument("$in" -> ids))
+    val modifier = BSONDocument("$set" -> BSONDocument(ISREMOVED -> true))
+    for {
+      document <- collection.flatMap(_.update(selector, modifier, multi = true).map(_.n))
     } yield document
   }
 }

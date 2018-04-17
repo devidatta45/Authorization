@@ -68,7 +68,7 @@ object ClientInsert extends App {
 
     val roles = dualPermissions.map { perm =>
       val id = BSONObjectID.generate().stringify
-      val role = Role(id, "Role:" + perm.head, perm, clientId)
+      val role = Role(id, "Role:" + perm.head, perm.map(x => CompositeCommand(x, x)), clientId)
       role
     }
     val dualRoles = DualFactory.getDualList(10, roles.map(_._id), Nil)
@@ -78,7 +78,8 @@ object ClientInsert extends App {
         val id = BSONObjectID.generate().stringify
         val random = Random.nextInt(dualRoles.size - 1)
         val uuid = UUID.randomUUID().toString
-        val user = User(id, "User:" + userId,"User:" + userId, s"user$uuid.com", dualRoles(random))
+        val user = User(id, "User:" + userId, "User:" + userId, s"user$uuid.com", dualRoles(random).
+          map(x => CompositeCommand(x, x)))
         user
       }
     }
@@ -89,7 +90,8 @@ object ClientInsert extends App {
       grp => {
         val random1 = Random.nextInt(dualRoles.size - 1)
         val random2 = Random.nextInt(dualUsers.size - 1)
-        UserGroup("", "Group:1", dualRoles(random1), dualUsers(random2))
+        UserGroup("", "Group:1", dualRoles(random1).map(x => CompositeCommand(x, x)),
+          dualUsers(random2).map(x => CompositeCommand(x, x)))
       }
     }
 

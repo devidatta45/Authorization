@@ -10,9 +10,11 @@ import reactivemongo.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWriter,
   */
 
 case class User(override val _id: String, firstName: String, lastName: String,
-                email: String, directRoles: List[String]) extends BaseEntity
+                email: String, directRoles: List[CompositeCommand]) extends BaseEntity
 
 object User {
+
+  import Role._
 
   implicit object UserReader extends BSONDocumentReader[User] {
     def read(doc: BSONDocument): User = {
@@ -21,7 +23,7 @@ object User {
       val firstName = doc.getAs[String](FIRST_NAME).get
       val lastName = doc.getAs[String](LAST_NAME).get
       val email = doc.getAs[String](EMAIL).get
-      val directRoles = doc.getAs[List[BSONObjectID]](DIRECT_ROLES).get.map(_.stringify)
+      val directRoles = doc.getAs[List[CompositeCommand]](DIRECT_ROLES).get
       User(id.stringify, firstName, lastName, email, directRoles)
     }
   }
@@ -30,7 +32,8 @@ object User {
     def write(user: User): BSONDocument = {
       val userId = BSONObjectID.parse(user._id)
       val id = if (userId.isSuccess) userId.get else BSONObjectID.generate()
-      val directRoles = user.directRoles.map(role => BSONObjectID.parse(role).get)
+      val directRoles = user.directRoles.map(role => BSONDocument("id" ->
+        BSONObjectID.parse(role.id).get, NAME -> role.name))
       BSONDocument(ID -> id,
         FIRST_NAME -> user.firstName,
         LAST_NAME -> user.lastName,

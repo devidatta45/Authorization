@@ -1,36 +1,38 @@
 
-POST     /authorization/v1/users                             com.sony.controllers.UserController.saveUser
-GET      /authorization/v1/users                             com.sony.controllers.UserController.getAllUser
-GET      /authorization/v1/users/:uid                        com.sony.controllers.UserController.getUserById(uid:String)
-GET      /authorization/v1/users/:uid/permissions            com.sony.controllers.UserController.showPermissions(uid: String)
-GET      /authorization/v1/users/:uid/permissions/cache      com.sony.controllers.UserController.showPermissionCache(uid: String)
-PATCH    /authorization/v1/users/:uid                        com.sony.controllers.UserController.updateUser(uid:String)
-DELETE   /authorization/v1/users/:uid                        com.sony.controllers.UserController.deleteUserById(uid:String)
+POST     /apis/v1/data/users                             com.sony.controllers.UserController.saveUser
+GET      /apis/v1/data/users                             com.sony.controllers.UserController.getAllUser
+GET      /apis/v1/data/users/:uid                        com.sony.controllers.UserController.getUserById(uid:String)
+GET      /apis/v1/data/users/:uid/permissions            com.sony.controllers.UserController.showPermissions(uid: String)
+GET      /apis/v1/data/users/:uid/permissions/cache      com.sony.controllers.UserController.showPermissionCache(uid: String)
+GET      /apis/v1/data/users/:uid/roles                  com.sony.controllers.UserController.getAllRoles(uid: String)
+GET      /apis/v1/data/users/:uid/groups                 com.sony.controllers.UserController.getAllUserGroups(uid: String)
+PATCH    /apis/v1/data/users/:uid                        com.sony.controllers.UserController.updateUser(uid:String)
+DELETE   /apis/v1/data/users/:uid                        com.sony.controllers.UserController.deleteUserById(uid:String)
 
-POST     /authorization/v1/clients                           com.sony.controllers.ClientController.saveClient
-GET      /authorization/v1/clients                           com.sony.controllers.ClientController.getAllClients
-GET      /authorization/v1/clients/:cid                      com.sony.controllers.ClientController.getClientById(cid:String)
-PATCH    /authorization/v1/clients/:cid                      com.sony.controllers.ClientController.updateClient(cid:String)
-DELETE   /authorization/v1/clients/:cid                      com.sony.controllers.ClientController.deleteClientById(cid:String)
+POST     /apis/v1/data/clients                           com.sony.controllers.ClientController.saveClient
+GET      /apis/v1/data/clients                           com.sony.controllers.ClientController.getAllClients
+GET      /apis/v1/data/clients/:cid                      com.sony.controllers.ClientController.getClientById(cid:String)
+PATCH    /apis/v1/data/clients/:cid                      com.sony.controllers.ClientController.updateClient(cid:String)
+DELETE   /apis/v1/data/clients/:cid                      com.sony.controllers.ClientController.deleteClientById(cid:String)
 
-POST     /authorization/v1/clients/:cid/permissions          com.sony.controllers.PermissionController.savePermission(cid:String)
-GET      /authorization/v1/clients/:cid/permissions          com.sony.controllers.PermissionController.getPermissionsByClient(cid:String)
-GET      /authorization/v1/permissions                       com.sony.controllers.PermissionController.getAllPermissions
-GET      /authorization/v1/clients/:cid/permissions/:pid     com.sony.controllers.PermissionController.getPermissionById(cid:String,pid:String)
-PATCH    /authorization/v1/clients/:cid/permissions/:pid     com.sony.controllers.PermissionController.updatePermission(cid:String,pid:String)
-DELETE   /authorization/v1/clients/:cid/permissions/:pid     com.sony.controllers.PermissionController.deletePermissionById(cid:String,pid:String)
+POST     /apis/v1/data/clients/:cid/permissions          com.sony.controllers.PermissionController.savePermission(cid:String)
+GET      /apis/v1/data/clients/:cid/permissions          com.sony.controllers.PermissionController.getPermissionsByClient(cid:String)
+GET      /apis/v1/data/permissions                       com.sony.controllers.PermissionController.getAllPermissions
+GET      /apis/v1/data/clients/:cid/permissions/:pid     com.sony.controllers.PermissionController.getPermissionById(cid:String,pid:String)
+PATCH    /apis/v1/data/v1/clients/:cid/permissions/:pid  com.sony.controllers.PermissionController.updatePermission(cid:String,pid:String)
+DELETE   /apis/v1/data/clients/:cid/permissions/:pid     com.sony.controllers.PermissionController.deletePermissionById(cid:String,pid:String)
 
-POST     /authorization/v1/clients/:cid/roles                       com.sony.controllers.RoleController.saveRole(cid:String)
-GET      /authorization/v1/clients/:cid/roles                       com.sony.controllers.RoleController.getRolesByClient(cid:String)
-GET      /authorization/v1/roles                                    com.sony.controllers.RoleController.getAllRoles
-GET      /authorization/v1/clients/:cid/roles/:rid                  com.sony.controllers.RoleController.getRoleById(cid:String,rid:String)
-GET      /authorization/v1/clients/:cid/roles/:rid/permissions      com.sony.controllers.RoleController.getPermissionsByRole(cid:String,rid:String)
-PATCH    /authorization/v1/clients/:cid/roles/:rid                  com.sony.controllers.RoleController.updateRole(cid:String,rid:String)
-DELETE   /authorization/v1/clients/:cid/roles/:rid                  com.sony.controllers.RoleController.deleteRoleById(cid:String,rid:String)
+POST     /apis/v1/data/clients/:cid/roles                       com.sony.controllers.RoleController.saveRole(cid:String)
+GET      /apis/v1/data/clients/:cid/roles                       com.sony.controllers.RoleController.getRolesByClient(cid:String)
+GET      /apis/v1/data/roles                                    com.sony.controllers.RoleController.getAllRoles
+GET      /apis/v1/data/clients/:cid/roles/:rid                  com.sony.controllers.RoleController.getRoleById(cid:String,rid:String)
+GET      /apis/v1/data/clients/:cid/roles/:rid/permissions      com.sony.controllers.RoleController.getPermissionsByRole(cid:String,rid:String)
+PATCH    /apis/v1/data/clients/:cid/roles/:rid                  com.sony.controllers.RoleController.updateRole(cid:String,rid:String)
+DELETE   /apis/v1/data/clients/:cid/roles/:rid                  com.sony.controllers.RoleController.deleteRoleById(cid:String,rid:String)
 
-POST     /authorization/v1/usergroups                       com.sony.controllers.UserGroupController.saveUserGroup
-GET      /authorization/v1/usergroups                       com.sony.controllers.UserGroupController.getAllUserGroup
-GET      /authorization/v1/usergroups/:gid                  com.sony.controllers.UserGroupController.getUserGroupById(gid:String)
-GET      /authorization/v1/usergroups/:gid/users            com.sony.controllers.UserGroupController.getUsersByUserGroup(gid:String)
-PATCH    /authorization/v1/usergroups/:gid                  com.sony.controllers.UserGroupController.updateUserGroup(gid:String)
-DELETE   /authorization/v1/usergroups/:gid                  com.sony.controllers.UserGroupController.deleteUserGroupById(gid:String)
+POST     /apis/v1/data/usergroups                       com.sony.controllers.UserGroupController.saveUserGroup
+GET      /apis/v1/data/usergroups                       com.sony.controllers.UserGroupController.getAllUserGroup
+GET      /apis/v1/data/usergroups/:gid                  com.sony.controllers.UserGroupController.getUserGroupById(gid:String)
+GET      /apis/v1/data/usergroups/:gid/users            com.sony.controllers.UserGroupController.getUsersByUserGroup(gid:String)
+PATCH    /apis/v1/data/usergroups/:gid                  com.sony.controllers.UserGroupController.updateUserGroup(gid:String)
+DELETE   /apis/v1/data/usergroups/:gid                  com.sony.controllers.UserGroupController.deleteUserGroupById(gid:String)
